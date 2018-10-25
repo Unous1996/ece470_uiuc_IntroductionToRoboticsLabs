@@ -1,0 +1,8 @@
+prefix=/home/ur3/catkin_aol3/devel
+
+Name: ece470_ur3_driver
+Description: Description of ece470_ur3_driver
+Version: 0.0.0
+Cflags: -I/home/ur3/catkin_aol3/devel/include
+Libs: -L/home/ur3/catkin_aol3/devel/lib 
+Requires: roscpp rospy std_msgs message_runtime

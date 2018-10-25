@@ -1,0 +1,8 @@
+prefix=/home/ur3/catkin_aol3/install
+
+Name: lab2pkg
+Description: Description of lab2pkg
+Version: 0.0.0
+Cflags: -I/home/ur3/catkin_aol3/install/include
+Libs: -L/home/ur3/catkin_aol3/install/lib -llab2pkg
+Requires: ece470_ur3_driver roscpp rospy std_msgs

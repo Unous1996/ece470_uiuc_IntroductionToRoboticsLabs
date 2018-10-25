@@ -1,0 +1,8 @@
+prefix=/home/ur3/catkin_aol3/install
+
+Name: lab4pkg
+Description: Description of lab4pkg
+Version: 0.0.0
+Cflags: -I/home/ur3/catkin_aol3/install/include
+Libs: -L/home/ur3/catkin_aol3/install/lib -llab4pkglib -llab3pkglib
+Requires: roscpp rospy std_msgs ece470_ur3_driver lab3pkg
