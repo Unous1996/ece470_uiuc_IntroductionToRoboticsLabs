@@ -1,0 +1,8 @@
+prefix=/home/ur3/catkin_aol3/devel
+
+Name: lab56pkg
+Description: Description of lab56pkg
+Version: 0.0.0
+Cflags: -I/home/ur3/catkin_aol3/src/lab56pkg/include
+Libs: -L/home/ur3/catkin_aol3/devel/lib -llab56pkglib
+Requires: cv_bridge image_transport roscpp rospy sensor_msgs std_msgs ece470_ur3_driver lab4pkg lab3pkg

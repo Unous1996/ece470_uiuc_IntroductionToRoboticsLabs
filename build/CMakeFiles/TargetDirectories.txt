@@ -151,6 +151,15 @@
 /home/ur3/catkin_aol3/build/drivers/cv_camera/CMakeFiles/roslint.dir
 /home/ur3/catkin_aol3/build/drivers/cv_camera/CMakeFiles/bond_generate_messages_eus.dir
 /home/ur3/catkin_aol3/build/drivers/cv_camera/CMakeFiles/bond_generate_messages_lisp.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/rebuild_cache.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/edit_cache.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/test.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/lab56pkglib.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/list_install_components.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/install.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/lab56node.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/install/strip.dir
+/home/ur3/catkin_aol3/build/lab56pkg/CMakeFiles/install/local.dir
 /home/ur3/catkin_aol3/build/drivers/ur_modern_driver/CMakeFiles/list_install_components.dir
 /home/ur3/catkin_aol3/build/drivers/ur_modern_driver/CMakeFiles/rebuild_cache.dir
 /home/ur3/catkin_aol3/build/drivers/ur_modern_driver/CMakeFiles/install/strip.dir

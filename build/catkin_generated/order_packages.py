@@ -2,4 +2,4 @@
 source_root_dir = "/home/ur3/catkin_aol3/src"
 whitelisted_packages = "".split(';') if "" != "" else []
 blacklisted_packages = "".split(';') if "" != "" else []
-underlay_workspaces = "/opt/ros/kinetic".split(';') if "/opt/ros/kinetic" != "" else []
+underlay_workspaces = "/home/ur3/catkin_aol3/devel;/opt/ros/kinetic".split(';') if "/home/ur3/catkin_aol3/devel;/opt/ros/kinetic" != "" else []

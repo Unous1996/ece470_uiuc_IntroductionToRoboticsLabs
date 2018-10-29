@@ -2329,7 +2329,7 @@ drivers/cv_camera/CMakeFiles/test_cv_camera.dir/all: gtest/gtest/CMakeFiles/gtes
 drivers/cv_camera/CMakeFiles/test_cv_camera.dir/all: drivers/cv_camera/CMakeFiles/cv_camera.dir/all
 	$(MAKE) -f drivers/cv_camera/CMakeFiles/test_cv_camera.dir/build.make drivers/cv_camera/CMakeFiles/test_cv_camera.dir/depend
 	$(MAKE) -f drivers/cv_camera/CMakeFiles/test_cv_camera.dir/build.make drivers/cv_camera/CMakeFiles/test_cv_camera.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=45,46 "Built target test_cv_camera"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=50,51 "Built target test_cv_camera"
 .PHONY : drivers/cv_camera/CMakeFiles/test_cv_camera.dir/all
 
 # Build rule for subdir invocation for target.
@@ -3206,7 +3206,7 @@ drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/all: gtest/gtest/CMakeFi
 drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/all: drivers/cv_camera/CMakeFiles/cv_camera.dir/all
 	$(MAKE) -f drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/build.make drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/depend
 	$(MAKE) -f drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/build.make drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=47,48 "Built target test_cv_camera_no_yaml"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=52,53 "Built target test_cv_camera_no_yaml"
 .PHONY : drivers/cv_camera/CMakeFiles/test_cv_camera_no_yaml.dir/all
 
 # Build rule for subdir invocation for target.
@@ -3328,6 +3328,132 @@ clean: drivers/cv_camera/CMakeFiles/bond_generate_messages_lisp.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory lab56pkg
+
+# Convenience name for "all" pass in the directory.
+lab56pkg/all: lab56pkg/CMakeFiles/lab56pkglib.dir/all
+lab56pkg/all: lab56pkg/CMakeFiles/lab56node.dir/all
+
+.PHONY : lab56pkg/all
+
+# Convenience name for "clean" pass in the directory.
+lab56pkg/clean: lab56pkg/CMakeFiles/lab56pkglib.dir/clean
+lab56pkg/clean: lab56pkg/CMakeFiles/lab56node.dir/clean
+
+.PHONY : lab56pkg/clean
+
+# Convenience name for "preinstall" pass in the directory.
+lab56pkg/preinstall:
+
+.PHONY : lab56pkg/preinstall
+
+#=============================================================================
+# Target rules for target lab56pkg/CMakeFiles/lab56pkglib.dir
+
+# All Build rule for target.
+lab56pkg/CMakeFiles/lab56pkglib.dir/all: lab3pkg/CMakeFiles/lab3pkglib.dir/all
+lab56pkg/CMakeFiles/lab56pkglib.dir/all: lab4pkg/CMakeFiles/lab4pkglib.dir/all
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56pkglib.dir/build.make lab56pkg/CMakeFiles/lab56pkglib.dir/depend
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56pkglib.dir/build.make lab56pkg/CMakeFiles/lab56pkglib.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=48,49 "Built target lab56pkglib"
+.PHONY : lab56pkg/CMakeFiles/lab56pkglib.dir/all
+
+# Include target in all.
+all: lab56pkg/CMakeFiles/lab56pkglib.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+lab56pkg/CMakeFiles/lab56pkglib.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ur3/catkin_aol3/build/CMakeFiles 6
+	$(MAKE) -f CMakeFiles/Makefile2 lab56pkg/CMakeFiles/lab56pkglib.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ur3/catkin_aol3/build/CMakeFiles 0
+.PHONY : lab56pkg/CMakeFiles/lab56pkglib.dir/rule
+
+# Convenience name for target.
+lab56pkglib: lab56pkg/CMakeFiles/lab56pkglib.dir/rule
+
+.PHONY : lab56pkglib
+
+# clean rule for target.
+lab56pkg/CMakeFiles/lab56pkglib.dir/clean:
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56pkglib.dir/build.make lab56pkg/CMakeFiles/lab56pkglib.dir/clean
+.PHONY : lab56pkg/CMakeFiles/lab56pkglib.dir/clean
+
+# clean rule for target.
+clean: lab56pkg/CMakeFiles/lab56pkglib.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target lab56pkg/CMakeFiles/lab56node.dir
+
+# All Build rule for target.
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/ece470_ur3_driver_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/ece470_ur3_driver_generate_messages_lisp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/ece470_ur3_driver_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/ece470_ur3_driver_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/std_msgs_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/roscpp_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/roscpp_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/ece470_ur3_driver_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/roscpp_generate_messages_lisp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/std_msgs_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/roscpp_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/ece470_ur3_driver/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: lab3pkg/CMakeFiles/lab3pkglib.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: lab4pkg/CMakeFiles/lab4pkglib.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
+lab56pkg/CMakeFiles/lab56node.dir/all: drivers/cv_camera/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56node.dir/build.make lab56pkg/CMakeFiles/lab56node.dir/depend
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56node.dir/build.make lab56pkg/CMakeFiles/lab56node.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=45,46,47 "Built target lab56node"
+.PHONY : lab56pkg/CMakeFiles/lab56node.dir/all
+
+# Include target in all.
+all: lab56pkg/CMakeFiles/lab56node.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+lab56pkg/CMakeFiles/lab56node.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ur3/catkin_aol3/build/CMakeFiles 19
+	$(MAKE) -f CMakeFiles/Makefile2 lab56pkg/CMakeFiles/lab56node.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ur3/catkin_aol3/build/CMakeFiles 0
+.PHONY : lab56pkg/CMakeFiles/lab56node.dir/rule
+
+# Convenience name for target.
+lab56node: lab56pkg/CMakeFiles/lab56node.dir/rule
+
+.PHONY : lab56node
+
+# clean rule for target.
+lab56pkg/CMakeFiles/lab56node.dir/clean:
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56node.dir/build.make lab56pkg/CMakeFiles/lab56node.dir/clean
+.PHONY : lab56pkg/CMakeFiles/lab56node.dir/clean
+
+# clean rule for target.
+clean: lab56pkg/CMakeFiles/lab56node.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Directory level rules for directory drivers/ur_modern_driver
 
 # Convenience name for "all" pass in the directory.
@@ -3384,7 +3510,7 @@ drivers/ur_modern_driver/preinstall:
 drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/all:
 	$(MAKE) -f drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/build.make drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/depend
 	$(MAKE) -f drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/build.make drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=57,58 "Built target ur_hardware_interface"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=62,63 "Built target ur_hardware_interface"
 .PHONY : drivers/ur_modern_driver/CMakeFiles/ur_hardware_interface.dir/all
 
 # Include target in all.
@@ -4030,7 +4156,7 @@ drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/all: drivers/ur_modern_driver/
 drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/all: drivers/ur_modern_driver/CMakeFiles/ur_msgs_generate_messages_lisp.dir/all
 	$(MAKE) -f drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/build.make drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/depend
 	$(MAKE) -f drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/build.make drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=49,50,51,52,53,54,55,56 "Built target ur_driver"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ur3/catkin_aol3/build/CMakeFiles --progress-num=54,55,56,57,58,59,60,61 "Built target ur_driver"
 .PHONY : drivers/ur_modern_driver/CMakeFiles/ur_driver.dir/all
 
 # Include target in all.

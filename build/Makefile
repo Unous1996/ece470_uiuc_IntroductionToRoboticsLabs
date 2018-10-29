@@ -1336,6 +1336,32 @@ bond_generate_messages_lisp/fast:
 .PHONY : bond_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named lab56pkglib
+
+# Build rule for target.
+lab56pkglib: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lab56pkglib
+.PHONY : lab56pkglib
+
+# fast build rule for target.
+lab56pkglib/fast:
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56pkglib.dir/build.make lab56pkg/CMakeFiles/lab56pkglib.dir/build
+.PHONY : lab56pkglib/fast
+
+#=============================================================================
+# Target rules for targets named lab56node
+
+# Build rule for target.
+lab56node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lab56node
+.PHONY : lab56node
+
+# fast build rule for target.
+lab56node/fast:
+	$(MAKE) -f lab56pkg/CMakeFiles/lab56node.dir/build.make lab56pkg/CMakeFiles/lab56node.dir/build
+.PHONY : lab56node/fast
+
+#=============================================================================
 # Target rules for targets named ur_hardware_interface
 
 # Build rule for target.
@@ -1854,6 +1880,8 @@ help:
 	@echo "... roslint"
 	@echo "... bond_generate_messages_eus"
 	@echo "... bond_generate_messages_lisp"
+	@echo "... lab56pkglib"
+	@echo "... lab56node"
 	@echo "... ur_hardware_interface"
 	@echo "... tf2_msgs_generate_messages_cpp"
 	@echo "... tf_generate_messages_nodejs"

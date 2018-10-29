@@ -1,2 +1,2 @@
-drivers/cv_camera:drivers/ece470_ur3_driver:drivers/ur_description:drivers/ur_modern_driver:lab2pkg:lab3pkg:lab4pkg
+drivers/cv_camera:drivers/ece470_ur3_driver:drivers/ur_description:drivers/ur_modern_driver:lab2pkg:lab3pkg:lab4pkg:lab56pkg
 -DCATKIN_DEVEL_PREFIX=/home/ur3/catkin_aol3/devel -DCMAKE_INSTALL_PREFIX=/home/ur3/catkin_aol3/install -G Unix Makefiles

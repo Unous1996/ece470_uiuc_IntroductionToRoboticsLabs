@@ -123,6 +123,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/ur3/catkin_aol3/build/lab3pkg/cmake_install.cmake")
   include("/home/ur3/catkin_aol3/build/lab4pkg/cmake_install.cmake")
   include("/home/ur3/catkin_aol3/build/drivers/cv_camera/cmake_install.cmake")
+  include("/home/ur3/catkin_aol3/build/lab56pkg/cmake_install.cmake")
   include("/home/ur3/catkin_aol3/build/drivers/ur_modern_driver/cmake_install.cmake")
 
 endif()
