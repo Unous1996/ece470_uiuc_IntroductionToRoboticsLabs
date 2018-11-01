@@ -90,19 +90,21 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
             ygrip = yWgrip;
             zgrip = zWgrip;
         }
-
+        /*
         std::cout<<"xgrip = "<<xgrip<<std::endl;
         std::cout<<"ygrip = "<<ygrip<<std::endl;
         std::cout<<"zgrip = "<<zgrip<<std::endl;
-
+        */
         xcen = xgrip - a6 * cos(yaw_WgripDegree);
         ycen = ygrip - a6 * sin(yaw_WgripDegree);
         zcen = zgrip;
 
         std::cout<<std::endl;
+        /*
         std::cout<<"xcen = " << xcen << std::endl;
         std::cout<<"ycen = " << ycen << std::endl;
         std::cout<<"zcen = " << zcen << std::endl;
+        */
 
         theta1_alpha = atan2(d2-0.01, sqrt(xcen*xcen + ycen*ycen - (d2-0.01)*(d2-0.01)));
         theta1_beta = atan2(ycen, xcen);
@@ -125,10 +127,11 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
         x3end = send[0] + xcen;
         y3end = send[1] + ycen;
         z3end = zcen + d6;
-	
+        /*
         cout <<"x3end = " << x3end << endl;
         cout <<"y3end = " << y3end << endl;
         cout <<"z3end = " << z3end << endl;
+        */
 
         Lc_square = (z3end - d1) * (z3end - d1) + x3end * x3end;
         Lc = sqrt(Lc_square);
@@ -138,8 +141,10 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
         cos_thetab = (a2 * a2 + Lc_square - a3 * a3)/(2 * a2 * Lc);
         theta_b = acos(cos_thetab);
         theta_d = atan2(z3end - d1 , x3end);
+        /*
         cout<<"theta_d="<<radian2degree(theta_d)<<endl;
         cout<<"theta_b="<<radian2degree(theta_b)<<endl;
+        */
         theta2  = -(theta_b + theta_d);
         theta4= -PI/2 - theta2 - theta3; // Default value Need to Change
 	theta5=-PI/2;  // Default value Need to Change
@@ -147,14 +152,14 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
 	// View values
 	//use cout
 
-
+            /*
             cout<<"theta1: "<< theta1*180/PI<<endl;
             cout<<"theta2: "<< theta2*180/PI<<endl;
             cout<<"theta3: "<< theta3*180/PI<<endl;
             cout<<"theta4: "<< theta4*180/PI<<endl;
             cout<<"theta5: "<< theta5*180/PI<<endl;
             cout<<"theta6: "<< theta6*180/PI<<endl;
-
+            */
 
 	// check that your values are good BEFORE sending commands to UR3
 	//lab_fk calculates the forward kinematics and convert it to std::vector<double>

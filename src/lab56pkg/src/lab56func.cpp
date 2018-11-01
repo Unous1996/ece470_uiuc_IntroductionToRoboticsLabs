@@ -3,6 +3,7 @@
 extern ImageConverter* ic_ptr; //global pointer from the lab56.cpp
 
 #define SPIN_RATE 20  /* Hz */
+#define MAX_GRAYSCALE 255
 
 bool isReady=1;
 bool pending=0;
@@ -83,6 +84,7 @@ void ImageConverter::suction_callback(const ur_msgs::IOStates::ConstPtr& msg)
 //subscriber callback function, will be called when there is a new image read by camera
 void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
 {  
+    //cout<<"Callback Function Called!"<<endl;
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
@@ -99,13 +101,13 @@ void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
     // convert to black and white img, then associate objects:  
 
 	Mat bw_image;
-	adaptiveThreshold(gray_image,bw_image,255,0,0,151,5);
-	//adaptiveThreshold(scr,dst,MAXVALUE,adaptiveMethod,thresholdType,blocksize,C);
+        //adaptiveThreshold(gray_image,bw_image,255,0,0,151,5);
+        bw_image = thresholdImage(gray_image);
+        //adaptiveThreshold(scr,dst,MAXVALUE,adaptiveMethod,thresholdType,blocksize,C);
 	//adaptiveMethod = 0, ADAPTIVE_THRESH_MEAN_C
 	//thresholdType = 0, BINARY
 	//blocksize
 	//C constant subtracted from tz.  
-	
 	
 // FUNCTION you will be completing
     Mat associate_image = associateObjects(bw_image); // find associated objects
@@ -127,18 +129,62 @@ void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
 // You will implement your algorithm for calculating threshold here.
 Mat ImageConverter::thresholdImage(Mat gray_img)
 {
+                //cout<<"theresholdImage called"<<endl;
 		int   totalpixels;
 		Mat bw_img  = gray_img.clone(); // copy input image to a new image
-		totalpixels	  = gray_img.rows*gray_img.cols;			// total number of pixels in image
+                totalpixels = gray_img.rows*gray_img.cols;			// total number of pixels in image
 		uchar graylevel; // use this variable to read the value of a pixel
+
 		int zt=0; // threshold grayscale value 
-		
-		
-
 		zt = 100;  // you will be finding this automatically 
+                /*
+                 *Begin Threshold calculation
+                 */
+                double P[MAX_GRAYSCALE];
+                double mean;
 
+                for(int i = 0; i < MAX_GRAYSCALE; i++){
+                    P[i] = 0.0;
+                }
 
-		//std::cout<<zt<<std::endl;
+                double unit = 1.0 / totalpixels;
+                for(int i = 0; i < bw_img.rows; i++){
+                    for(int j = 0; j < bw_img.cols; j++){
+                        graylevel = bw_img.data[i*bw_img.cols + j];
+                        mean += unit * graylevel;
+                        P[graylevel] += unit;
+                    }
+                }
+
+                double q_0[MAX_GRAYSCALE], u_0[MAX_GRAYSCALE], q_1[MAX_GRAYSCALE], u_1[MAX_GRAYSCALE];
+                q_0[0] = P[0];
+                q_1[0] = 1 - q_0[0];
+                u_0[0] = 0.0;
+                u_1[0] = (mean - q_0[0]*u_0[0])/q_1[0];
+                int argmax_zt = 0;
+                double max_sigma_b = q_0[0]*q_1[0]*(u_0[0] - u_1[0])*(u_0[0] - u_1[0]);
+                double temp_sigma_b;
+                for(int i = 1; i < MAX_GRAYSCALE; i++){
+                    q_0[i] = P[i] + q_0[i-1];
+                    q_1[i] = 1 - q_0[i];
+                    u_0[i] = i*P[i]/q_0[i] + q_0[i-1]*u_0[i-1] / q_0[i];
+                    u_1[i] = (mean - q_0[i]*u_0[i]) / q_1[i];
+                    temp_sigma_b =  q_0[i]*q_1[i]*(u_0[i] - u_1[i])*(u_0[i] - u_1[i]);
+                    //cout<<endl;
+                    //cout<<"Round:"<<i<<endl;
+                    //cout<<"temp_sigma_b = "<<temp_sigma_b<<endl;
+                    //cout<<endl;
+                    if(temp_sigma_b > max_sigma_b){
+                        argmax_zt = i;
+                        max_sigma_b = temp_sigma_b;
+                    }
+                }
+                zt = argmax_zt;
+                /*
+                 *End Threshold calculation
+                 */
+
+                std::cout<<"zt="<<zt<<std::endl;
 		// threshold the image
 		for(int i=0; i<totalpixels; i++)
 		{
@@ -272,6 +318,7 @@ void onMouse(int event, int x, int y, int flags, void* userdata)
 {
 		ic_ptr->onClick(event,x,y,flags,userdata);
 }
+
 void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
 {
 	// For use with Lab 6
