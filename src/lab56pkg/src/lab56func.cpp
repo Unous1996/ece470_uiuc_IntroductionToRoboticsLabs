@@ -4,6 +4,9 @@ extern ImageConverter* ic_ptr; //global pointer from the lab56.cpp
 
 #define SPIN_RATE 20  /* Hz */
 #define MAX_GRAYSCALE 255
+#define MAX_OBJECTS 5000
+#define PIXEL_BLACK 0
+#define PIXEL_WHITE 255
 
 bool isReady=1;
 bool pending=0;
@@ -136,7 +139,6 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
 		uchar graylevel; // use this variable to read the value of a pixel
 
 		int zt=0; // threshold grayscale value 
-		zt = 100;  // you will be finding this automatically 
                 /*
                  *Begin Threshold calculation
                  */
@@ -180,11 +182,12 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
                     }
                 }
                 zt = argmax_zt;
+                //zt = 100;
                 /*
                  *End Threshold calculation
                  */
 
-                std::cout<<"zt="<<zt<<std::endl;
+                //std::cout<<"zt="<<zt<<std::endl;
 		// threshold the image
 		for(int i=0; i<totalpixels; i++)
 		{
@@ -194,6 +197,7 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
 		}	
 	return bw_img;	
 }
+
 /*****************************************************
 	 * Function for Lab 5
 * **************************************************/
@@ -204,20 +208,102 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 	//initiallize the variables you will use
 	int height,width; // number of rows and colums of image
 	int red, green, blue; //used to assign color of each objects
-	uchar pixel; //used to read pixel value of input image 
-	height = bw_img.rows;
+        uchar pixel; //used to read pixel value of input image
+        int int_pixel, left, above;
+        height = bw_img.rows;
 	width = bw_img.cols;
-	int num = 0;
-	// initialize an array of labels, assigning a label number to each pixel in the image
-	// this create a 2 dimensional array pixellabel[row][col]
+        int labelnum = 0;
 	int ** pixellabel = new int*[height];
-	for (int i=0;i<height;i++) {
+        int label[MAX_OBJECTS];
+        int *equiv[MAX_OBJECTS];
+        for (int i=0;i<height;i++){
 		pixellabel[i] = new int[width];
 	}
+        labelnum = 1;
+        /*determine the value of the pixellabel*/
+        for(int i = 0; i < MAX_OBJECTS; i++){
+            equiv[i] = &label[i];
+        }
 
-	num = 0;
-	// creating a demo image of colored lines
-	for(int row=0; row<height; row++)
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                pixel = bw_img.data[i * width + j];
+                if(pixel == PIXEL_WHITE){
+                    pixellabel[i][j] = -1;
+                }
+                else if(pixel == PIXEL_BLACK){
+                    pixellabel[i][j] = 0;
+                }
+                else{
+                   // cout<<"Error. This should be a black-white image, but it isn't"<<endl;
+                }
+            }
+        }
+
+        //cout<<"First Raster Scan is"<<endl;
+        //First Raster Scan
+        int debug_mode = 16;
+        //16: P Only
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                int_pixel = pixellabel[i][j];
+                if(j == 0){
+                    left = -1;
+                }
+                else{
+                    left = pixellabel[i][j-1];
+                }
+
+                if(i == 0){
+                    above = -1;
+                }
+                else{
+                    above = pixellabel[i-1][j];
+                }
+
+                if(int_pixel >= 0){
+                    if(left == -1 && above == -1){
+                        pixellabel[i][j] = labelnum;
+                        label[labelnum] = labelnum;
+                        labelnum++;
+                    }
+                    else{
+                        if(left >= 0 && above == -1){
+                            pixellabel[i][j] = left;
+                        }
+                        if(left == -1 && above >= 0){
+                            pixellabel[i][j] = above;
+                        }
+                        if(left >= 0 && above >= 0){
+                            int smaller = min(*equiv[left], *equiv[above]);
+                            pixellabel[i][j] = smaller;
+                            int min_index = (smaller == *equiv[left])?left:above;
+                            int max_index = (min_index == left)?above:left;
+                            if(min_index == max_index && left != above){
+                                cout<<"Error here!"<<endl;
+                            }
+                            *equiv[max_index] = *equiv[min_index];
+                            equiv[max_index] = equiv[min_index];
+                        }
+                    }
+                }
+            }
+        }
+
+       // cout<<"Second Raster Scan is"<<endl;
+        //Second raster scan
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                pixel = pixellabel[i][j];
+                if(pixel >= 0){
+                    pixellabel[i][j] = *equiv[pixel];
+                }
+            }
+        }
+
+        // creating a demo image of colored lines
+        /*
+        for(int row=0; row<height; row++)
 	{
 		for(int col=0; col<width; col++) 
 		{
@@ -228,8 +314,10 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 			num = 0;
 		}
 	}
+        */
 
 	// assign UNIQUE color to each object
+        cout<<"labelnum = " << labelnum << endl;
 	Mat associate_img = Mat::zeros( bw_img.size(), CV_8UC3 ); // function will return this image
 	Vec3b color;
 	for(int row=0; row<height; row++)
@@ -240,9 +328,9 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 			{
 				
 				case 0:
-					red    = 255; // you can change color of each objects here
-					green = 255;
-					blue   = 255;
+                                        red    = 0; // you can change color of each objects here
+                                        green = 0;
+                                        blue   = 0;
 					break;
 				case 1:
 					red    = 255; // you can change color of each objects here
@@ -290,9 +378,9 @@ Mat ImageConverter::associateObjects(Mat bw_img)
                     blue   = 128;
                  	break;
 				default:
-					red    = 0;
-					green = 0;
-					blue   = 0;
+                                        red    = 255;
+                                        green = 255;
+                                        blue   = 255;
 					break;					
 			}
 
