@@ -198,6 +198,105 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
 	return bw_img;	
 }
 
+/****************************************************
+ * HelperFunction for Lab 5
+ * ************************************************/
+
+void GetPixelLabel(Mat bw_img, int** pixellabel){
+
+    uchar pixel; //used to read pixel value of input image
+    int int_pixel, left, above;
+    int height = bw_img.rows;
+    int width = bw_img.cols;
+    int labelnum = 0;
+    int label[MAX_OBJECTS];
+    int *equiv[MAX_OBJECTS];
+    labelnum = 1;
+
+    /*determine the value of the pixellabel*/
+    for(int i = 0; i < MAX_OBJECTS; i++){
+        equiv[i] = &label[i];
+    }
+
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            pixel = bw_img.data[i * width + j];
+            if(pixel == PIXEL_WHITE){
+                pixellabel[i][j] = -1;
+            }
+            else if(pixel == PIXEL_BLACK){
+                pixellabel[i][j] = 0;
+            }
+            else{
+               cout<<"Error. This should be a black-white image, but it isn't"<<endl;
+            }
+            //cout<<"pixellabel["<<i<<"]["<<j<<"]="<<pixellabel[i][j]<<endl;
+        }
+    }
+
+    //cout<<"First Raster Scan is"<<endl;
+    //First Raster Scan
+
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            int_pixel = pixellabel[i][j];
+            if(j == 0){
+                left = -1;
+            }
+            else{
+                left = pixellabel[i][j-1];
+            }
+
+            if(i == 0){
+                above = -1;
+            }
+            else{
+                above = pixellabel[i-1][j];
+            }
+
+            if(int_pixel >= 0){
+                if(left == -1 && above == -1){
+                    pixellabel[i][j] = labelnum;
+                    label[labelnum] = labelnum;
+                    labelnum++;
+                }
+                else{
+                    if(left >= 0 && above == -1){
+                        pixellabel[i][j] = left;
+                    }
+                    if(left == -1 && above >= 0){
+                        pixellabel[i][j] = above;
+                    }
+                    if(left >= 0 && above >= 0){
+                        int smaller = min(*equiv[left], *equiv[above]);
+                        pixellabel[i][j] = smaller;
+                        int min_index = (smaller == *equiv[left])?left:above;
+                        int max_index = (min_index == left)?above:left;
+                        if(min_index == max_index && left != above){
+                            cout<<"Error here!"<<endl;
+                        }
+                        *equiv[max_index] = *equiv[min_index];
+                        equiv[max_index] = equiv[min_index];
+                    }
+                }
+            }
+        }
+    }
+
+   // cout<<"Second Raster Scan is"<<endl;
+    //Second raster scan
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            pixel = pixellabel[i][j];
+            if(pixel >= 0){
+                pixellabel[i][j] = *equiv[pixel];
+            }
+        }
+    }
+
+    //cout<<"labelnum = " << labelnum << endl;
+}
+
 /*****************************************************
 	 * Function for Lab 5
 * **************************************************/
@@ -205,120 +304,35 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
 // You will implement your algorithm for rastering here
 Mat ImageConverter::associateObjects(Mat bw_img)
 {
-	//initiallize the variables you will use
-	int height,width; // number of rows and colums of image
-	int red, green, blue; //used to assign color of each objects
-        uchar pixel; //used to read pixel value of input image
-        int int_pixel, left, above;
-        height = bw_img.rows;
-	width = bw_img.cols;
-        int labelnum = 0;
-	int ** pixellabel = new int*[height];
-        int label[MAX_OBJECTS];
-        int *equiv[MAX_OBJECTS];
-        for (int i=0;i<height;i++){
-		pixellabel[i] = new int[width];
-	}
-        labelnum = 1;
-        /*determine the value of the pixellabel*/
-        for(int i = 0; i < MAX_OBJECTS; i++){
-            equiv[i] = &label[i];
-        }
+    int debug = 1;
+    int height,width; // number of rows and colums of image
+    Mat test_image_bw, test_image;
+    switch(debug){
+        case 1:
+            test_image = imread("/home/ur3/Pictures/Lab5TestImages/testimage1.png",CV_LOAD_IMAGE_GRAYSCALE);
+            test_image_bw = thresholdImage(test_image);
+            break;
+        default:
+            test_image_bw = bw_img;
+    }
 
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                pixel = bw_img.data[i * width + j];
-                if(pixel == PIXEL_WHITE){
-                    pixellabel[i][j] = -1;
-                }
-                else if(pixel == PIXEL_BLACK){
-                    pixellabel[i][j] = 0;
-                }
-                else{
-                   // cout<<"Error. This should be a black-white image, but it isn't"<<endl;
-                }
-            }
-        }
+    height = test_image_bw.rows;
+    width = test_image_bw.cols;
+    /*
+    cout<<"height="<<height<<endl;
+    cout<<"width="<<width<<endl;
+    */
 
-        //cout<<"First Raster Scan is"<<endl;
-        //First Raster Scan
-        int debug_mode = 16;
-        //16: P Only
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                int_pixel = pixellabel[i][j];
-                if(j == 0){
-                    left = -1;
-                }
-                else{
-                    left = pixellabel[i][j-1];
-                }
+    int **pixellabel = new int*[height];
+    for(int i=0;i<height;i++){
+        pixellabel[i] = new int[width];
+    }
 
-                if(i == 0){
-                    above = -1;
-                }
-                else{
-                    above = pixellabel[i-1][j];
-                }
+    GetPixelLabel(test_image_bw, pixellabel);
 
-                if(int_pixel >= 0){
-                    if(left == -1 && above == -1){
-                        pixellabel[i][j] = labelnum;
-                        label[labelnum] = labelnum;
-                        labelnum++;
-                    }
-                    else{
-                        if(left >= 0 && above == -1){
-                            pixellabel[i][j] = left;
-                        }
-                        if(left == -1 && above >= 0){
-                            pixellabel[i][j] = above;
-                        }
-                        if(left >= 0 && above >= 0){
-                            int smaller = min(*equiv[left], *equiv[above]);
-                            pixellabel[i][j] = smaller;
-                            int min_index = (smaller == *equiv[left])?left:above;
-                            int max_index = (min_index == left)?above:left;
-                            if(min_index == max_index && left != above){
-                                cout<<"Error here!"<<endl;
-                            }
-                            *equiv[max_index] = *equiv[min_index];
-                            equiv[max_index] = equiv[min_index];
-                        }
-                    }
-                }
-            }
-        }
-
-       // cout<<"Second Raster Scan is"<<endl;
-        //Second raster scan
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                pixel = pixellabel[i][j];
-                if(pixel >= 0){
-                    pixellabel[i][j] = *equiv[pixel];
-                }
-            }
-        }
-
-        // creating a demo image of colored lines
-        /*
-        for(int row=0; row<height; row++)
-	{
-		for(int col=0; col<width; col++) 
-		{
-			pixellabel[row][col] = num;
-		}
-		num++;
-		if (num == 10) {
-			num = 0;
-		}
-	}
-        */
-
-	// assign UNIQUE color to each object
-        cout<<"labelnum = " << labelnum << endl;
-	Mat associate_img = Mat::zeros( bw_img.size(), CV_8UC3 ); // function will return this image
+        //initiallize the variables you will use
+        int red, green, blue; //used to assign color of each objects
+        Mat associate_img = Mat::zeros( test_image_bw.size(), CV_8UC3 ); // function will return this image
 	Vec3b color;
 	for(int row=0; row<height; row++)
 	{
@@ -419,7 +433,6 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
 
 			// put your left click code here
 
-
 			leftclickdone = 1; // code finished
 		} else {
 			ROS_INFO_STREAM("Previous Left Click not finshed, IGNORING this Click"); 
@@ -432,9 +445,6 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
 			ROS_INFO_STREAM("right click:  (" << x << ", " << y << ")");  //the point you clicked
 
 			// put your right click code here
-
-
-
 			rightclickdone = 1; // code finished
 		} else {
 			ROS_INFO_STREAM("Previous Right Click not finshed, IGNORING this Click"); 
