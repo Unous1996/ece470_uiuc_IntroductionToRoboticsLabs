@@ -2,7 +2,7 @@
 
 extern ImageConverter* ic_ptr; //global pointer from the lab56.cpp
 
-#define SPIN_RATE 1  /* Hz */
+#define SPIN_RATE 20  /* Hz */
 #define MAX_GRAYSCALE 255
 #define MAX_OBJECTS 5000
 #define PIXEL_BLACK 0
@@ -178,13 +178,8 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
                     }
                 }
                 zt = argmax_zt;
-                //zt = 100;
-                /*
-                 *End Threshold calculation
-                 */
-
                 //std::cout<<"zt="<<zt<<std::endl;
-		// threshold the image
+
 		for(int i=0; i<totalpixels; i++)
 		{
 			graylevel = gray_img.data[i];	
@@ -223,12 +218,11 @@ void GetPixelLabel(Mat bw_img, int** pixellabel){
             else if(pixel == PIXEL_BLACK){
                 pixellabel[i][j] = 0;
             }
-            else{
-               cout<<"Error. This should be a black-white image, but it isn't"<<endl;
-            }
-            //cout<<"pixellabel["<<i<<"]["<<j<<"]="<<pixellabel[i][j]<<endl;
         }
     }
+
+
+
 
     //cout<<"First Raster Scan is"<<endl;
     //First Raster Scan
@@ -279,13 +273,13 @@ void GetPixelLabel(Mat bw_img, int** pixellabel){
         }
     }
 
-   // cout<<"Second Raster Scan is"<<endl;
+    // cout<<"Second Raster Scan is"<<endl;
     //Second raster scan
     for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
-            pixel = pixellabel[i][j];
-            if(pixel >= 0){
-                pixellabel[i][j] = *equiv[pixel];
+            int_pixel = pixellabel[i][j];
+            if(int_pixel >= 0){
+                pixellabel[i][j] = *equiv[int_pixel];
             }
         }
     }
@@ -300,28 +294,30 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
     int graylevel;
     double zt;
     double P[MAX_OBJECTS];
+    unsigned int Hist[MAX_OBJECTS];
     double mean;
     double unit = 1.0/(width*height);
 
-    //cout<<"ThresholdPixelLabel1"<<endl;
-    for(int i = 0; i < MAX_OBJECTS; i++){
-        P[i] = 0.0;
-    }
-    //cout<<"ThresholdPixelLabel2"<<endl;
-    //cout<<"unit="<<unit<<endl;
-    for(int i = 0; i < height; i++){
-        for(int j = 0; j < width; j++){
-            graylevel = pixellabel[i][j] + 1;
-            mean += unit * graylevel;
-            P[graylevel] += unit;
-        }
-    }
-
-    for(int i = 0; i < MAX_OBJECTS; i++){
-        //cout<<"P["<<i<<"]="<<P[i]<<endl;
-    }
 
     if(autoThreshold == true){
+        //cout<<"ThresholdPixelLabel1"<<endl;
+        for(int i = 0; i < MAX_OBJECTS; i++){
+            P[i] = 0.0;
+        }
+        //cout<<"ThresholdPixelLabel2"<<endl;
+        //cout<<"unit="<<unit<<endl;
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                graylevel = pixellabel[i][j] + 1;
+                mean += unit * graylevel;
+                P[graylevel] += unit;
+            }
+        }
+
+        for(int i = 0; i < MAX_OBJECTS; i++){
+            cout<<"P["<<i<<"]="<<P[i]<<endl;
+        }
+
         //cout<<"ThresholdPixelLabel3"<<endl;
         double q_0[MAX_OBJECTS], u_0[MAX_OBJECTS], q_1[MAX_OBJECTS], u_1[MAX_OBJECTS];
         q_0[0] = P[0];
@@ -347,17 +343,25 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
         //out<<"ThresholdPixelLabel4"<<endl;
     }
     else{
-        zt = 0.4;
-    }
+        for(int i = 0; i < MAX_OBJECTS; i++){
+            Hist[i] = 0;
+        }
 
-    for(int i = 0; i < height; i++){
-        for(int j = 0; j < width; j++){
-            graylevel = pixellabel[i][j] + 1;
-            cout<<"zt="<<zt<<endl;
-            cout<<"P[graylevel]="<<P[graylevel]<<endl;
-            if(P[graylevel] < zt){
-                cout<<"False Positive Detected"<<endl;
-                pixellabel[i][j] = -1;
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                graylevel = pixellabel[i][j] + 1;
+                Hist[graylevel] += 1;
+            }
+        }
+
+        zt = 30;
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                graylevel = pixellabel[i][j] + 1;
+                if(Hist[graylevel] < zt){
+                    cout<<"False Positive Detected"<<endl;
+                    pixellabel[i][j] = -1;
+                }
             }
         }
     }
@@ -407,9 +411,9 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 		for(int col=0; col<width; col++)
 		{
                         if(pixellabel[row][col] < 0){
-                            red = 0;
-                            green = 0;
-                            blue = 0;
+                            red = 255;
+                            green = 255;
+                            blue = 255;
                         }
                         else{
                             switch (  pixellabel[row][col] % 10 )
@@ -466,9 +470,9 @@ Mat ImageConverter::associateObjects(Mat bw_img)
                                             blue   = 128;
                                             break;
                                     default:
-                                            red    = 255;
-                                            green = 255;
-                                            blue   = 255;
+                                            red    = 0;
+                                            green = 0;
+                                            blue   = 0;
                                             break;
                             }
                         }
@@ -495,6 +499,11 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 void onMouse(int event, int x, int y, int flags, void* userdata)
 {
 		ic_ptr->onClick(event,x,y,flags,userdata);
+}
+
+void onMouseAssociated(int event, int x, int y, int flags, void* userdata)
+{
+
 }
 
 void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
