@@ -62,7 +62,8 @@ class ImageConverter
 		Mat thresholdImage(Mat gray_img);
 	
 		//lab5's function, associating image, input a black and white(binary) image and returns an associated image
-		Mat associateObjects(Mat bw_img);
+                //Mat associateObjects(Mat bw_img);
+                Mat associateObjects(Mat bw_img, Mat color_img);
 };
 
 #endif

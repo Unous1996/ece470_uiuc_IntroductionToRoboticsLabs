@@ -113,7 +113,7 @@ void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
 	//C constant subtracted from tz.  
 	
 // FUNCTION you will be completing
-    Mat associate_image = associateObjects(bw_image); // find associated objects
+    Mat associate_image = associateObjects(bw_image, cv_ptr->image); // find associated objects
 
     // Update GUI Window
     imshow("Image window", cv_ptr->image);
@@ -354,12 +354,17 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
             }
         }
 
+        for(int i = 0; i < MAX_OBJECTS; i++){
+
+        }
+
         zt = 30;
+        int zt_high = (640 * 480)/3;
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 graylevel = pixellabel[i][j] + 1;
-                if(Hist[graylevel] < zt){
-                    cout<<"False Positive Detected"<<endl;
+                if(Hist[graylevel] < zt || Hist[graylevel] > zt_high){
+                    //cout<<"False Positive Detected"<<endl;
                     pixellabel[i][j] = -1;
                 }
             }
@@ -372,7 +377,7 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
 * **************************************************/
 // Take an black and white image and find the object it it, returns an associated image with different color for each image
 // You will implement your algorithm for rastering here
-Mat ImageConverter::associateObjects(Mat bw_img)
+Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
 {
     int debug = 0;
     int height,width; // number of rows and colums of image
@@ -414,8 +419,13 @@ Mat ImageConverter::associateObjects(Mat bw_img)
                             red = 255;
                             green = 255;
                             blue = 255;
+                            color[0] = blue;
+                            color[1] = green;
+                            color[2] = red;
+                            associate_img.at<Vec3b>(Point(col,row)) = color;
                         }
                         else{
+                            /*
                             switch (  pixellabel[row][col] % 10 )
                             {
 
@@ -476,12 +486,19 @@ Mat ImageConverter::associateObjects(Mat bw_img)
                                             break;
                             }
                         }
+                        */
 
-
+                        /*
 			color[0] = blue;
 			color[1] = green;
 			color[2] = red;
-			associate_img.at<Vec3b>(Point(col,row)) = color;
+                        */
+
+                            color[0] = color_img.at<cv::Vec3b>(row,col)[0];
+                            color[1] = color_img.at<cv::Vec3b>(row,col)[1];
+                            color[2] = color_img.at<cv::Vec3b>(row,col)[2];
+                            associate_img.at<Vec3b>(Point(col,row)) = color;
+                        }
 		}
 	}
 	
