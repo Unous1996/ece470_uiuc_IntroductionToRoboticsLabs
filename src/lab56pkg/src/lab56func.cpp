@@ -2,7 +2,7 @@
 
 extern ImageConverter* ic_ptr; //global pointer from the lab56.cpp
 
-#define SPIN_RATE 20  /* Hz */
+#define SPIN_RATE 1  /* Hz */
 #define MAX_GRAYSCALE 255
 #define MAX_OBJECTS 5000
 #define PIXEL_BLACK 0
@@ -172,10 +172,6 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
                     u_0[i] = i*P[i]/q_0[i] + q_0[i-1]*u_0[i-1] / q_0[i];
                     u_1[i] = (mean - q_0[i]*u_0[i]) / q_1[i];
                     temp_sigma_b =  q_0[i]*q_1[i]*(u_0[i] - u_1[i])*(u_0[i] - u_1[i]);
-                    //cout<<endl;
-                    //cout<<"Round:"<<i<<endl;
-                    //cout<<"temp_sigma_b = "<<temp_sigma_b<<endl;
-                    //cout<<endl;
                     if(temp_sigma_b > max_sigma_b){
                         argmax_zt = i;
                         max_sigma_b = temp_sigma_b;
@@ -195,7 +191,7 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
 			if(graylevel>zt) bw_img.data[i]= 255; // set rgb to 255 (white)
 			else             bw_img.data[i]= 0; // set rgb to 0   (black)
 		}	
-	return bw_img;	
+        return bw_img;
 }
 
 /****************************************************
@@ -297,6 +293,76 @@ void GetPixelLabel(Mat bw_img, int** pixellabel){
     //cout<<"labelnum = " << labelnum << endl;
 }
 
+void ThresholdPixelLabel(int **pixellabel, int width, int height){
+    bool autoThreshold = false;
+
+    int totalpixels = MAX_OBJECTS;
+    int graylevel;
+    double zt;
+    double P[MAX_OBJECTS];
+    double mean;
+    double unit = 1.0/(width*height);
+
+    //cout<<"ThresholdPixelLabel1"<<endl;
+    for(int i = 0; i < MAX_OBJECTS; i++){
+        P[i] = 0.0;
+    }
+    //cout<<"ThresholdPixelLabel2"<<endl;
+    //cout<<"unit="<<unit<<endl;
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            graylevel = pixellabel[i][j] + 1;
+            mean += unit * graylevel;
+            P[graylevel] += unit;
+        }
+    }
+
+    for(int i = 0; i < MAX_OBJECTS; i++){
+        //cout<<"P["<<i<<"]="<<P[i]<<endl;
+    }
+
+    if(autoThreshold == true){
+        //cout<<"ThresholdPixelLabel3"<<endl;
+        double q_0[MAX_OBJECTS], u_0[MAX_OBJECTS], q_1[MAX_OBJECTS], u_1[MAX_OBJECTS];
+        q_0[0] = P[0];
+        q_1[0] = 1 - q_0[0];
+        u_0[0] = 0.0;
+        u_1[0] = (mean - q_0[0]*u_0[0])/q_1[0];
+        int argmax_zt = 0;
+        double max_sigma_b = q_0[0]*q_1[0]*(u_0[0] - u_1[0])*(u_0[0] - u_1[0]);
+        double temp_sigma_b;
+        for(int i = 1; i < MAX_OBJECTS; i++){
+            q_0[i] = P[i] + q_0[i-1];
+            q_1[i] = 1 - q_0[i];
+            u_0[i] = i*P[i]/q_0[i] + q_0[i-1]*u_0[i-1] / q_0[i];
+            u_1[i] = (mean - q_0[i]*u_0[i]) / q_1[i];
+            temp_sigma_b =  q_0[i]*q_1[i]*(u_0[i] - u_1[i])*(u_0[i] - u_1[i]);
+            if(temp_sigma_b > max_sigma_b){
+                argmax_zt = i;
+                max_sigma_b = temp_sigma_b;
+            }
+        }
+        zt = argmax_zt;
+
+        //out<<"ThresholdPixelLabel4"<<endl;
+    }
+    else{
+        zt = 0.4;
+    }
+
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            graylevel = pixellabel[i][j] + 1;
+            cout<<"zt="<<zt<<endl;
+            cout<<"P[graylevel]="<<P[graylevel]<<endl;
+            if(P[graylevel] < zt){
+                cout<<"False Positive Detected"<<endl;
+                pixellabel[i][j] = -1;
+            }
+        }
+    }
+
+}
 /*****************************************************
 	 * Function for Lab 5
 * **************************************************/
@@ -304,7 +370,7 @@ void GetPixelLabel(Mat bw_img, int** pixellabel){
 // You will implement your algorithm for rastering here
 Mat ImageConverter::associateObjects(Mat bw_img)
 {
-    int debug = 1;
+    int debug = 0;
     int height,width; // number of rows and colums of image
     Mat test_image_bw, test_image;
     switch(debug){
@@ -329,6 +395,8 @@ Mat ImageConverter::associateObjects(Mat bw_img)
     }
 
     GetPixelLabel(test_image_bw, pixellabel);
+    ThresholdPixelLabel(pixellabel, width, height);
+    /*Compute the histogram of the pixellabel*/
 
         //initiallize the variables you will use
         int red, green, blue; //used to assign color of each objects
@@ -338,65 +406,73 @@ Mat ImageConverter::associateObjects(Mat bw_img)
 	{
 		for(int col=0; col<width; col++)
 		{
-			switch (  pixellabel[row][col] )
-			{
-				
-				case 0:
-                                        red    = 0; // you can change color of each objects here
-                                        green = 0;
-                                        blue   = 0;
-					break;
-				case 1:
-					red    = 255; // you can change color of each objects here
-					green  = 0;
-					blue   = 0;
-					break;
-				case 2:
-					red    = 0;
-					green  = 255;
-					blue   = 0;
-					break;
-				case 3:
-					red    = 0;
-					green  = 0;
-					blue   = 255;
-					break;
-				case 4:
-					red    = 255;
-					green  = 255;
-					blue   = 0;
-					break;
-				case 5:
-					red    = 255;
-					green  = 0;
-					blue   = 255;
-					break;
-				case 6:
-					red    = 0;
-					green  = 255;
-					blue   = 255;
-					break;
-                case 7:
-                    red    = 128;
-                    green  = 128;
-                    blue   = 0;
-                    break;
-                case 8:
-                    red    = 128;
-                    green  = 0;
-                    blue   = 128;
-                    break;
-                case 9:
-                    red    = 0;
-                    green  = 128;
-                    blue   = 128;
-                 	break;
-				default:
-                                        red    = 255;
-                                        green = 255;
-                                        blue   = 255;
-					break;					
-			}
+                        if(pixellabel[row][col] < 0){
+                            red = 0;
+                            green = 0;
+                            blue = 0;
+                        }
+                        else{
+                            switch (  pixellabel[row][col] % 10 )
+                            {
+
+                                    case 0:
+                                            red    = 130;
+                                            green = 130;
+                                            blue   = 130;
+                                            break;
+                                    case 1:
+                                            red    = 255;
+                                            green  = 0;
+                                            blue   = 0;
+                                            break;
+                                    case 2:
+                                            red    = 0;
+                                            green  = 255;
+                                            blue   = 0;
+                                            break;
+                                    case 3:
+                                            red    = 0;
+                                            green  = 0;
+                                            blue   = 255;
+                                            break;
+                                    case 4:
+                                            red    = 255;
+                                            green  = 255;
+                                            blue   = 0;
+                                            break;
+                                    case 5:
+                                            red    = 255;
+                                            green  = 0;
+                                            blue   = 255;
+                                            break;
+                                    case 6:
+                                            red    = 0;
+                                            green  = 255;
+                                            blue   = 255;
+                                            break;
+                                    case 7:
+                                            red    = 128;
+                                            green  = 128;
+                                            blue   = 0;
+                                            break;
+                                    case 8:
+                                            red    = 128;
+                                            green  = 0;
+                                            blue   = 128;
+                                            break;
+                                    case 9:
+                                            red    = 0;
+                                            green  = 128;
+                                            blue   = 128;
+                                            break;
+                                    default:
+                                            red    = 255;
+                                            green = 255;
+                                            blue   = 255;
+                                            break;
+                            }
+                        }
+
 
 			color[0] = blue;
 			color[1] = green;

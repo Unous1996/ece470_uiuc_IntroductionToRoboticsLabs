@@ -152,14 +152,14 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
 	// View values
 	//use cout
 
-            /*
+
             cout<<"theta1: "<< theta1*180/PI<<endl;
             cout<<"theta2: "<< theta2*180/PI<<endl;
             cout<<"theta3: "<< theta3*180/PI<<endl;
             cout<<"theta4: "<< theta4*180/PI<<endl;
             cout<<"theta5: "<< theta5*180/PI<<endl;
             cout<<"theta6: "<< theta6*180/PI<<endl;
-            */
+
 
 	// check that your values are good BEFORE sending commands to UR3
 	//lab_fk calculates the forward kinematics and convert it to std::vector<double>
