@@ -354,12 +354,14 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
             }
         }
 
-        for(int i = 0; i < MAX_OBJECTS; i++){
+        // for(int i = 0; i < MAX_OBJECTS; i++){
 
-        }
+        // }
 
-        zt = 30;
-        int zt_high = (640 * 480)/3;
+        int previouslabel[MAX_OBJECTS];
+
+        zt = 60;
+        int zt_high = 1000;//(640 * 480)/4;
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
                 graylevel = pixellabel[i][j] + 1;
@@ -367,8 +369,31 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
                     //cout<<"False Positive Detected"<<endl;
                     pixellabel[i][j] = -1;
                 }
+                else{
+                    for(int a = 0; a < MAX_OBJECTS; a++){
+                        if(previouslabel[a]== 0){
+                            previouslabel[a]=pixellabel[i][j];
+                        }
+                        else if(pixellabel[i][j]==previouslabel[a]){
+                            pixellabel[i][j] == a;
+                        }
+                    }
+                }
             }
         }
+        // int previouslabel[MAX_OBJECTS] = { };
+        // int size[MAX_OBJECTS] = { };
+
+        //calculate the size
+        // for(int i = 0; i < height; i++){
+        //     for(int j = 0; j < width; j++){
+        //         if(pixellabel[i][j] != -1){
+        //             for(int a = 0; a < MAX_OBJECTS; a++){
+        //                 if(pixellabel[i][j])
+        //             }
+        //         }
+        //     }
+        // }
     }
 
 }
@@ -397,6 +422,12 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
     cout<<"height="<<height<<endl;
     cout<<"width="<<width<<endl;
     */
+    
+    std::vector<int> m00(MAX_OBJECTS, 0);
+    std::vector<int> m01(MAX_OBJECTS, 0);
+    std::vector<int> m10(MAX_OBJECTS, 0);
+    std::vector<int> r(MAX_OBJECTS, 0);
+    std::vector<int> c(MAX_OBJECTS, 0);
 
     int **pixellabel = new int*[height];
     for(int i=0;i<height;i++){
@@ -407,15 +438,20 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
     ThresholdPixelLabel(pixellabel, width, height);
     /*Compute the histogram of the pixellabel*/
 
-        //initiallize the variables you will use
-        int red, green, blue; //used to assign color of each objects
-        Mat associate_img = Mat::zeros( test_image_bw.size(), CV_8UC3 ); // function will return this image
+    //initiallize the variables you will use
+    int red, green, blue; //used to assign color of each objects
+    const int min_col = 279;
+    const int max_col = 532;
+    const int min_row = 104;
+    const int max_row = 289;
+    Mat associate_img = Mat::zeros( test_image_bw.size(), CV_8UC3 ); // function will return this image
 	Vec3b color;
+
 	for(int row=0; row<height; row++)
 	{
 		for(int col=0; col<width; col++)
 		{
-                        if(pixellabel[row][col] < 0){
+                        if(pixellabel[row][col] < 0 || (col < min_col) || (col > max_col) || (row < min_row) || (row > max_row)){
                             red = 255;
                             green = 255;
                             blue = 255;
@@ -425,10 +461,15 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
                             associate_img.at<Vec3b>(Point(col,row)) = color;
                         }
                         else{
-                            /*
+                            //update m00, m01 and m10
+                            if(col >= min_col && col <= max_col && row >= min_row && row <= max_row){
+                            	int object_no = pixellabel[row][col];
+                            	m00[object_no] += 1;
+                           		m01[object_no] += col;
+                           		m10[object_no] += row;
+                            }
                             switch (  pixellabel[row][col] % 10 )
                             {
-
                                     case 0:
                                             red    = 130;
                                             green = 130;
@@ -486,22 +527,30 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
                                             break;
                             }
                         }
-                        */
+                        
 
-                        /*
+                        
 			color[0] = blue;
 			color[1] = green;
 			color[2] = red;
-                        */
+            associate_img.at<Vec3b>(Point(col,row)) = color;            
 
-                            color[0] = color_img.at<cv::Vec3b>(row,col)[0];
+                           /* color[0] = color_img.at<cv::Vec3b>(row,col)[0];
                             color[1] = color_img.at<cv::Vec3b>(row,col)[1];
                             color[2] = color_img.at<cv::Vec3b>(row,col)[2];
                             associate_img.at<Vec3b>(Point(col,row)) = color;
-                        }
+                        }*/
 		}
 	}
 	
+	for(int i = 0; i < MAX_OBJECTS; i++){
+		if(m00[i] > 0){
+			r[i] = m10[i]/m00[i];
+			c[i] = m01[i]/m00[i];
+			std::cout<<"r["<<i<<"]="<<r[i]<<std::endl;
+			std::cout<<"c["<<i<<"]="<<c[i]<<std::endl;
+		}
+	}
 	return associate_img;
 }
 
