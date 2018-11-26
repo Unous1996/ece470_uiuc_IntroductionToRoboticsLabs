@@ -549,6 +549,7 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
 			c[i] = m01[i]/m00[i];
 			std::cout<<"r["<<i<<"]="<<r[i]<<std::endl;
 			std::cout<<"c["<<i<<"]="<<c[i]<<std::endl;
+			cv::drawMarker(associate_img, cv::Point(c[i], r[i]),  cv::Scalar(0, 0, 255), MARKER_CROSS, 10, 1);
 		}
 	}
 	return associate_img;
