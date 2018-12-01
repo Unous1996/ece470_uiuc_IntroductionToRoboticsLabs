@@ -13,6 +13,10 @@ bool pending=0;
 
 float SuctionValue = 0.0;
 
+double beta = 1.0;
+float Tx = 346.0;
+float Ty = 391.0;
+
 bool leftclickdone = 1;
 bool rightclickdone = 1;
 
@@ -547,8 +551,11 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
 		if(m00[i] > 0){
 			r[i] = m10[i]/m00[i];
 			c[i] = m01[i]/m00[i];
+			/*
 			std::cout<<"r["<<i<<"]="<<r[i]<<std::endl;
 			std::cout<<"c["<<i<<"]="<<c[i]<<std::endl;
+			std::cout<<std::endl;
+			*/
 			cv::drawMarker(associate_img, cv::Point(c[i], r[i]),  cv::Scalar(0, 0, 255), MARKER_CROSS, 10, 1);
 		}
 	}
@@ -565,7 +572,12 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
  //lab4 and lab3 functions can be used since it is included in the "lab4.h" 
 void onMouse(int event, int x, int y, int flags, void* userdata)
 {
-		ic_ptr->onClick(event,x,y,flags,userdata);
+	double x_world, y_world;
+	x_world = (Tx - y)/beta;
+	y_world = (Ty - x)/beta;
+	cout<<"x_world = " << x_world << std::endl;
+	cout<<"y_world = " << y_world << std::endl;
+	ic_ptr->onClick(event,x,y,flags,userdata);
 }
 
 void onMouseAssociated(int event, int x, int y, int flags, void* userdata)
