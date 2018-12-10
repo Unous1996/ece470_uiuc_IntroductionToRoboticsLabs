@@ -14,9 +14,12 @@ bool pending=0;
 
 float SuctionValue = 0.0;
 
+
+double Or = 480/2.0; //x
+double Oc = 640/2.0; //y
 double beta = 751.73;
 double theta_rad = (270 + 0) * PI/180;
-float Px = 338.0;
+float Px = 340.0;
 float Py = 461.0;
 
 bool leftclickdone = 1;
@@ -605,31 +608,37 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
             leftclickdone = 0;  // code started
             ROS_INFO_STREAM("left click:  (" << x << ", " << y << ")");  //the point you clicked
     		double x_world, y_world;
-    		// double Tx, Ty;
+    		double Tx, Ty;
 
-            // Tx = Px / beta;
-            // Ty = Py / beta;
+            double s_theta = sin(theta_rad);
+            double c_theta = cos(theta_rad);
 
-            cout << "cos = " << cos(theta_rad) << endl;
-            cout << "sin = " << sin(theta_rad) << endl;
-           
-            x_world = cos(theta_rad) * x - sin(theta_rad) * -y + Py;
-            y_world = sin(theta_rad) * x + cos(theta_rad) * -y + Px;
+            double x_c, y_c, x_w, y_w;
 
-    		x_world /= beta;
-            y_world /= beta;
+            Tx = (Px - Oc) / beta;
+            Ty = (Py - Or) / beta;
+
+            x_c = (x - Oc) / beta;
+            y_c = (y - Or) / beta;
+
+            x_w=1.0*(x_c+(s_theta/c_theta)*y_c-Tx-(s_theta/c_theta)*Ty)/(c_theta+s_theta*s_theta/c_theta);
+            y_w=-1.0*(x_c-(c_theta/s_theta)*y_c-Tx+(c_theta/s_theta)*Ty)/(s_theta+c_theta*c_theta/s_theta);
+
+            cout<<"x_w = "<<x_w<<endl;
+            cout<<"y_w = "<<y_w<<endl;
             
-            cout<<"x_xworld = " << x_world << " ";
-    		cout<<"y_world = " << y_world << std::endl;
-	
     		for(int i = 0; i < rows.size(); i++){
     			if(x > (cols[i] - BODY_PIXEL_WIDTH) && x < (cols[i] + BODY_PIXEL_WIDTH) && y > (rows[i] - BODY_PIXEL_WIDTH) && y < (rows[i] + BODY_PIXEL_WIDTH) )
    				{
    					std::cout<<"reached here"<<std::endl;
-   					driver_msg.destination = lab_invk(x_world * 1000, y_world * 1000, 35, 0);
+                    cout<<"x_w = "<<x_w<<endl;
+                    cout<<"y_w = "<<y_w<<endl;
+
+   					driver_msg.destination = lab_invk(y_w * 1000, x_w * 1000, 35, 0);
    					pub_command.publish(driver_msg);
    				}
             }
+            
             
             leftclickdone = 1; // code finished
         } else {
@@ -652,3 +661,11 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
     }
 }
 
+/*
+double Or = 480/2.0; //x
+double Oc = 640/2.0; //y
+double beta = 751.73;
+double theta_rad = (270 + 0) * PI/180;
+float Px = 340.0;
+float Py = 461.0;
+*/
