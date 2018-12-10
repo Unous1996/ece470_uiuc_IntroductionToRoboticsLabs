@@ -136,7 +136,7 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
         Lc_square = (z3end - d1) * (z3end - d1) + x3end * x3end;
         Lc = sqrt(Lc_square);
         cos_theta3 = (a2 * a2 + a3 * a3 - Lc_square)/(2 * a2 * a3);
-        //std::cout<<"cos_theta3 = " << cos_theta3 << std::endl;
+        std::cout<<"cos_theta3 = " << cos_theta3 << std::endl;
         theta3 = PI - acos(cos_theta3);
         cos_thetab = (a2 * a2 + Lc_square - a3 * a3)/(2 * a2 * Lc);
         theta_b = acos(cos_thetab);
@@ -152,14 +152,12 @@ std::vector<double> lab_invk(float xWgrip, float yWgrip, float zWgrip, float yaw
 	// View values
 	//use cout
 
-
             cout<<"theta1: "<< theta1*180/PI<<endl;
             cout<<"theta2: "<< theta2*180/PI<<endl;
             cout<<"theta3: "<< theta3*180/PI<<endl;
             cout<<"theta4: "<< theta4*180/PI<<endl;
             cout<<"theta5: "<< theta5*180/PI<<endl;
             cout<<"theta6: "<< theta6*180/PI<<endl;
-
 
 	// check that your values are good BEFORE sending commands to UR3
 	//lab_fk calculates the forward kinematics and convert it to std::vector<double>

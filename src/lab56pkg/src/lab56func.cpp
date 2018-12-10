@@ -7,66 +7,69 @@ extern ImageConverter* ic_ptr; //global pointer from the lab56.cpp
 #define MAX_OBJECTS 5000
 #define PIXEL_BLACK 0
 #define PIXEL_WHITE 255
+#define BODY_PIXEL_WIDTH 30
 
-bool isReady=1;
+bool isReady=0;
 bool pending=0;
 
 float SuctionValue = 0.0;
 
-double beta = 1.0;
-float Tx = 346.0;
-float Ty = 391.0;
+double beta = 757.5;
+float Px = 337.0;
+float Py = 461.0;
 
 bool leftclickdone = 1;
 bool rightclickdone = 1;
 
+std::vector<int> object_labels, rows, cols;
+
 /*****************************************************
 * Functions in class:
-* **************************************************/	
+* **************************************************/   
 
 //constructor(don't modify) 
 ImageConverter::ImageConverter():it_(nh_)
 {
     // Subscrive to input video feed and publish output video feed
     image_sub_ = it_.subscribe("/cv_camera_node/image_raw", 1, 
-    	&ImageConverter::imageCb, this);
+        &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
     namedWindow(OPENCV_WINDOW);   
     pub_command=nh_.advertise<ece470_ur3_driver::command>("ur3/command",10);
     sub_position=nh_.subscribe("ur3/position",1,&ImageConverter::position_callback,this); 
 
-	sub_io_states=nh_.subscribe("ur_driver/io_states",1,&ImageConverter::suction_callback,this);
-	
-	srv_SetIO = nh_.serviceClient<ur_msgs::SetIO>("ur_driver/set_io");
+    sub_io_states=nh_.subscribe("ur_driver/io_states",1,&ImageConverter::suction_callback,this);
+    
+    srv_SetIO = nh_.serviceClient<ur_msgs::SetIO>("ur_driver/set_io");
 
 
     driver_msg.destination=lab_invk(-.3,-.3,0.2,-90);
 
-	//publish the point to the robot
+    //publish the point to the robot
     ros::Rate loop_rate(SPIN_RATE); // Initialize the rate to publish to ur3/command
-	int spincount = 0;
-	driver_msg.duration = 3.0;
-	pub_command.publish(driver_msg);  // publish command, but note that is possible that
-										  // the subscriber will not receive this message.
-	spincount = 0;
-	while (isReady) { // Waiting for isReady to be false meaning that the driver has the new command
-		ros::spinOnce();  // Allow other ROS functionallity to run
-		loop_rate.sleep(); // Sleep and wake up at 1/20 second (1/SPIN_RATE) interval
-		if (spincount > SPIN_RATE) {  // if isReady does not get set within 1 second re-publish
-			pub_command.publish(driver_msg);
-			ROS_INFO_STREAM("Just Published again driver_msg");
-			spincount = 0;
-		}
-		spincount++;  // keep track of loop count
-	}
-	ROS_INFO_STREAM("waiting for rdy");  // Now wait for robot arm to reach the commanded waypoint.
-	
-	while(!isReady)
-	{
-		ros::spinOnce();
-		loop_rate.sleep();
-	}
-	ROS_INFO_STREAM("Ready for new point");
+    int spincount = 0;
+    driver_msg.duration = 3.0;
+    pub_command.publish(driver_msg);  // publish command, but note that is possible that
+                                          // the subscriber will not receive this message.
+    spincount = 0;
+    while (isReady) { // Waiting for isReady to be false meaning that the driver has the new command
+        ros::spinOnce();  // Allow other ROS functionallity to run
+        loop_rate.sleep(); // Sleep and wake up at 1/20 second (1/SPIN_RATE) interval
+        if (spincount > SPIN_RATE) {  // if isReady does not get set within 1 second re-publish
+            pub_command.publish(driver_msg);
+            ROS_INFO_STREAM("Just Published again driver_msg");
+            spincount = 0;
+        }
+        spincount++;  // keep track of loop count
+    }
+    ROS_INFO_STREAM("waiting for rdy");  // Now wait for robot arm to reach the commanded waypoint.
+    
+    while(!isReady)
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    ROS_INFO_STREAM("Ready for new point");
 
 }
 
@@ -78,13 +81,13 @@ ImageConverter::~ImageConverter()
 
 void ImageConverter::position_callback(const ece470_ur3_driver::positions::ConstPtr& msg)
 {
-	isReady=msg->isReady;
-	pending=msg->pending;
+    isReady=msg->isReady;
+    pending=msg->pending;
 }
 
 void ImageConverter::suction_callback(const ur_msgs::IOStates::ConstPtr& msg)
 {
-	SuctionValue = msg->analog_in_states[0].state;
+    SuctionValue = msg->analog_in_states[0].state;
 }
 
 
@@ -104,18 +107,18 @@ void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
     } 
     // create an gray scale version of image
     Mat gray_image;
-	cvtColor( cv_ptr->image, gray_image, CV_BGR2GRAY );  
+    cvtColor( cv_ptr->image, gray_image, CV_BGR2GRAY );  
     // convert to black and white img, then associate objects:  
 
-	Mat bw_image;
+    Mat bw_image;
         //adaptiveThreshold(gray_image,bw_image,255,0,0,151,5);
         bw_image = thresholdImage(gray_image);
         //adaptiveThreshold(scr,dst,MAXVALUE,adaptiveMethod,thresholdType,blocksize,C);
-	//adaptiveMethod = 0, ADAPTIVE_THRESH_MEAN_C
-	//thresholdType = 0, BINARY
-	//blocksize
-	//C constant subtracted from tz.  
-	
+    //adaptiveMethod = 0, ADAPTIVE_THRESH_MEAN_C
+    //thresholdType = 0, BINARY
+    //blocksize
+    //C constant subtracted from tz.  
+    
 // FUNCTION you will be completing
     Mat associate_image = associateObjects(bw_image, cv_ptr->image); // find associated objects
 
@@ -130,19 +133,19 @@ void ImageConverter::imageCb(const sensor_msgs::ImageConstPtr& msg)
 } 
 
 /*****************************************************
-	 * Function for Lab 5
-* **************************************************/	
+     * Function for Lab 5
+* **************************************************/   
 // Take a grayscale image as input and return an thresholded image.
 // You will implement your algorithm for calculating threshold here.
 Mat ImageConverter::thresholdImage(Mat gray_img)
 {
                 //cout<<"theresholdImage called"<<endl;
-		int   totalpixels;
-		Mat bw_img  = gray_img.clone(); // copy input image to a new image
-                totalpixels = gray_img.rows*gray_img.cols;			// total number of pixels in image
-		uchar graylevel; // use this variable to read the value of a pixel
+        int   totalpixels;
+        Mat bw_img  = gray_img.clone(); // copy input image to a new image
+                totalpixels = gray_img.rows*gray_img.cols;          // total number of pixels in image
+        uchar graylevel; // use this variable to read the value of a pixel
 
-		int zt=0; // threshold grayscale value 
+        int zt=0; // threshold grayscale value 
                 /*
                  *Begin Threshold calculation
                  */
@@ -184,12 +187,12 @@ Mat ImageConverter::thresholdImage(Mat gray_img)
                 zt = argmax_zt;
                 //std::cout<<"zt="<<zt<<std::endl;
 
-		for(int i=0; i<totalpixels; i++)
-		{
-			graylevel = gray_img.data[i];	
-			if(graylevel>zt) bw_img.data[i]= 255; // set rgb to 255 (white)
-			else             bw_img.data[i]= 0; // set rgb to 0   (black)
-		}	
+        for(int i=0; i<totalpixels; i++)
+        {
+            graylevel = gray_img.data[i];   
+            if(graylevel>zt) bw_img.data[i]= 255; // set rgb to 255 (white)
+            else             bw_img.data[i]= 0; // set rgb to 0   (black)
+        }   
         return bw_img;
 }
 
@@ -224,9 +227,6 @@ void GetPixelLabel(Mat bw_img, int** pixellabel){
             }
         }
     }
-
-
-
 
     //cout<<"First Raster Scan is"<<endl;
     //First Raster Scan
@@ -402,7 +402,7 @@ void ThresholdPixelLabel(int **pixellabel, int width, int height){
 
 }
 /*****************************************************
-	 * Function for Lab 5
+     * Function for Lab 5
 * **************************************************/
 // Take an black and white image and find the object it it, returns an associated image with different color for each image
 // You will implement your algorithm for rastering here
@@ -432,6 +432,8 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
     std::vector<int> m10(MAX_OBJECTS, 0);
     std::vector<int> r(MAX_OBJECTS, 0);
     std::vector<int> c(MAX_OBJECTS, 0);
+    rows.clear();
+    cols.clear();
 
     int **pixellabel = new int*[height];
     for(int i=0;i<height;i++){
@@ -448,14 +450,22 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
     const int max_col = 532;
     const int min_row = 104;
     const int max_row = 289;
-    Mat associate_img = Mat::zeros( test_image_bw.size(), CV_8UC3 ); // function will return this image
-	Vec3b color;
 
-	for(int row=0; row<height; row++)
-	{
-		for(int col=0; col<width; col++)
-		{
-                        if(pixellabel[row][col] < 0 || (col < min_col) || (col > max_col) || (row < min_row) || (row > max_row)){
+    const int min_x = 109;
+    const int max_x = 394;
+    const int min_y = 147;
+    const int max_y = 442;
+
+    Mat associate_img = Mat::zeros( test_image_bw.size(), CV_8UC3 ); // function will return this image
+    Vec3b color;
+
+    //col-x row-y
+    
+    for(int row=0; row<height; row++)
+    {
+        for(int col=0; col<width; col++)
+        {
+                        if(pixellabel[row][col] < 0 || (col < min_x) || (col > max_x) || (row < min_y) || (row > max_y)){
                             red = 255;
                             green = 255;
                             blue = 255;
@@ -466,13 +476,13 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
                         }
                         else{
                             //update m00, m01 and m10
-                            if(col >= min_col && col <= max_col && row >= min_row && row <= max_row){
-                            	int object_no = pixellabel[row][col];
-                            	m00[object_no] += 1;
-                           		m01[object_no] += col;
-                           		m10[object_no] += row;
+                            if(col >= min_x && col <= max_x && row >= min_y && row <= max_y){
+                                int object_no = pixellabel[row][col];
+                                m00[object_no] += 1;
+                                m01[object_no] += col;
+                                m10[object_no] += row;
                             }
-                            switch (  pixellabel[row][col] % 10 )
+                            switch ( pixellabel[row][col] % 10 )
                             {
                                     case 0:
                                             red    = 130;
@@ -534,9 +544,9 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
                         
 
                         
-			color[0] = blue;
-			color[1] = green;
-			color[2] = red;
+            color[0] = blue;
+            color[1] = green;
+            color[2] = red;
             associate_img.at<Vec3b>(Point(col,row)) = color;            
 
                            /* color[0] = color_img.at<cv::Vec3b>(row,col)[0];
@@ -544,26 +554,29 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
                             color[2] = color_img.at<cv::Vec3b>(row,col)[2];
                             associate_img.at<Vec3b>(Point(col,row)) = color;
                         }*/
-		}
-	}
-	
-	for(int i = 0; i < MAX_OBJECTS; i++){
-		if(m00[i] > 0){
-			r[i] = m10[i]/m00[i];
-			c[i] = m01[i]/m00[i];
-			/*
-			std::cout<<"r["<<i<<"]="<<r[i]<<std::endl;
-			std::cout<<"c["<<i<<"]="<<c[i]<<std::endl;
-			std::cout<<std::endl;
-			*/
-			cv::drawMarker(associate_img, cv::Point(c[i], r[i]),  cv::Scalar(0, 0, 255), MARKER_CROSS, 10, 1);
-		}
-	}
-	return associate_img;
+        }
+    }
+    
+    for(int i = 0; i < MAX_OBJECTS; i++){
+        if(m00[i] > 0){
+            r[i] = m10[i]/m00[i];
+            c[i] = m01[i]/m00[i];
+            object_labels.push_back(i);
+            rows.push_back(r[i]);
+            cols.push_back(c[i]);
+            /*
+            std::cout<<"r["<<i<<"]="<<r[i]<<std::endl;
+            std::cout<<"c["<<i<<"]="<<c[i]<<std::endl;
+            std::cout<<std::endl;
+            */
+            cv::drawMarker(associate_img, cv::Point(c[i], r[i]),  cv::Scalar(0, 0, 255), MARKER_CROSS, 10, 1);
+        }
+    }
+    return associate_img;
 }
 
 /*****************************************************
-	*Function for Lab 6
+    *Function for Lab 6
  * **************************************************/
  //This is a call back function of mouse click, it will be called when there's a click on the video window.
  //You will write your coordinate transformation in onClick function.
@@ -572,12 +585,7 @@ Mat ImageConverter::associateObjects(Mat bw_img, Mat color_img)
  //lab4 and lab3 functions can be used since it is included in the "lab4.h" 
 void onMouse(int event, int x, int y, int flags, void* userdata)
 {
-	double x_world, y_world;
-	x_world = (Tx - y)/beta;
-	y_world = (Ty - x)/beta;
-	cout<<"x_world = " << x_world << std::endl;
-	cout<<"y_world = " << y_world << std::endl;
-	ic_ptr->onClick(event,x,y,flags,userdata);
+    ic_ptr->onClick(event,x,y,flags,userdata);
 }
 
 void onMouseAssociated(int event, int x, int y, int flags, void* userdata)
@@ -587,32 +595,49 @@ void onMouseAssociated(int event, int x, int y, int flags, void* userdata)
 
 void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
 {
-	// For use with Lab 6
-	// If the robot is holding a block, place it at the designated row and column. 
-	if  ( event == EVENT_LBUTTONDOWN ) //if left click, do nothing other than printing the clicked point
-	{  
-		if (leftclickdone == 1) {
-			leftclickdone = 0;  // code started
-			ROS_INFO_STREAM("left click:  (" << x << ", " << y << ")");  //the point you clicked
-
-			// put your left click code here
-
-			leftclickdone = 1; // code finished
-		} else {
-			ROS_INFO_STREAM("Previous Left Click not finshed, IGNORING this Click"); 
-		}
-	}
-	else if  ( event == EVENT_RBUTTONDOWN )//if right click, find nearest centroid,
-	{
-		if (rightclickdone == 1) {  // if previous right click not finished ignore
-			rightclickdone = 0;  // starting code
-			ROS_INFO_STREAM("right click:  (" << x << ", " << y << ")");  //the point you clicked
-
-			// put your right click code here
-			rightclickdone = 1; // code finished
-		} else {
-			ROS_INFO_STREAM("Previous Right Click not finshed, IGNORING this Click"); 
-		}
-	}
+    // For use with Lab 6
+    // If the robot is holding a block, place it at the designated row and column. 
+    ROS_INFO_STREAM("ImageConverter::onClick is called"); 
+    if  ( event == EVENT_LBUTTONDOWN ) //if left click, do nothing other than printing the clicked point
+    {  
+        if (leftclickdone == 1) {
+            leftclickdone = 0;  // code started
+            ROS_INFO_STREAM("left click:  (" << x << ", " << y << ")");  //the point you clicked
+    		double x_world, y_world;
+    		x_world = (Py - y) / beta;
+    		y_world = (Px - x) / beta;
+    		cout<<"x_world_raw" << Px - x << " ";
+    		cout<<"y_world_raw" << Py - y << std::endl;
+    		cout<<"x_world = " << x_world << " ";
+    		cout<<"y_world = " << y_world << std::endl;
+	
+    		for(int i = 0; i < rows.size(); i++){
+    			if(x > (cols[i] - BODY_PIXEL_WIDTH) && x < (cols[i] + BODY_PIXEL_WIDTH) && y > (rows[i] - BODY_PIXEL_WIDTH) && y < (rows[i] + BODY_PIXEL_WIDTH) )
+   				{
+   					std::cout<<"reached here"<<std::endl;
+   					driver_msg.destination = lab_invk(x_world * 1000, y_world * 1000, 130, 0);
+   					pub_command.publish(driver_msg);
+   				}
+            }
+            
+            leftclickdone = 1; // code finished
+        } else {
+            ROS_INFO_STREAM("Previous Left Click not finshed, IGNORING this Click"); 
+        }
+    }
+    else if  ( event == EVENT_RBUTTONDOWN )//if right click, find nearest centroid,
+    {
+        if (rightclickdone == 1) {  // if previous right click not finished ignore
+            rightclickdone = 0;  // starting code
+            ROS_INFO_STREAM("right click:  (" << x << ", " << y << ")");  //the point you clicked
+            for(int i = 0; i < object_labels.size(); i++){
+            	std::cout<<"object_labels="<<object_labels[i]<<std::endl;
+            }
+            // put your right click code here
+            rightclickdone = 1; // code finished
+        } else {
+            ROS_INFO_STREAM("Previous Right Click not finshed, IGNORING this Click"); 
+        }
+    }
 }
 
