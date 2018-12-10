@@ -14,8 +14,9 @@ bool pending=0;
 
 float SuctionValue = 0.0;
 
-double beta = 757.5;
-float Px = 337.0;
+double beta = 751.73;
+double theta_rad = (270 + 0) * PI/180;
+float Px = 338.0;
 float Py = 461.0;
 
 bool leftclickdone = 1;
@@ -604,18 +605,28 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
             leftclickdone = 0;  // code started
             ROS_INFO_STREAM("left click:  (" << x << ", " << y << ")");  //the point you clicked
     		double x_world, y_world;
-    		x_world = (Py - y) / beta;
-    		y_world = (Px - x) / beta;
-    		cout<<"x_world_raw" << Px - x << " ";
-    		cout<<"y_world_raw" << Py - y << std::endl;
-    		cout<<"x_world = " << x_world << " ";
+    		// double Tx, Ty;
+
+            // Tx = Px / beta;
+            // Ty = Py / beta;
+
+            cout << "cos = " << cos(theta_rad) << endl;
+            cout << "sin = " << sin(theta_rad) << endl;
+           
+            x_world = cos(theta_rad) * x - sin(theta_rad) * -y + Py;
+            y_world = sin(theta_rad) * x + cos(theta_rad) * -y + Px;
+
+    		x_world /= beta;
+            y_world /= beta;
+            
+            cout<<"x_xworld = " << x_world << " ";
     		cout<<"y_world = " << y_world << std::endl;
 	
     		for(int i = 0; i < rows.size(); i++){
     			if(x > (cols[i] - BODY_PIXEL_WIDTH) && x < (cols[i] + BODY_PIXEL_WIDTH) && y > (rows[i] - BODY_PIXEL_WIDTH) && y < (rows[i] + BODY_PIXEL_WIDTH) )
    				{
    					std::cout<<"reached here"<<std::endl;
-   					driver_msg.destination = lab_invk(x_world * 1000, y_world * 1000, 130, 0);
+   					driver_msg.destination = lab_invk(x_world * 1000, y_world * 1000, 35, 0);
    					pub_command.publish(driver_msg);
    				}
             }
