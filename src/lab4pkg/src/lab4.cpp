@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	ros::Subscriber sub_position=nh.subscribe("ur3/position",1,position_callback);
 	ros::Publisher pub_command=nh.advertise<ece470_ur3_driver::command>("ur3/command",10);
 	ece470_ur3_driver::command driver_msg;
-        bool debug = false;
+    bool debug = false;
 
 	//command line parse:
 	if(argc!=5){

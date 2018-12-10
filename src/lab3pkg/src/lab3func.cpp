@@ -67,7 +67,7 @@ Matrix4f DH2HT(float a, int alpha, float d, float theta)
 	//cout<<"Tag1"<<endl;
 	//print out a, alpha, d, theta and HT matrix.
 	//#ifdef DEBUG
-                //cout<<"HT matrix: \n"<<HT<<endl;
+                std::cout<<"HT matrix: \n"<<HT<<std::endl;
 	//#endif
 	return HT; 
 }
@@ -79,6 +79,7 @@ Matrix4f DH2HT(float a, int alpha, float d, float theta)
 std::vector<double> lab_fk(float theta1, float theta2, float theta3, float theta4, float theta5, float theta6)
 {
 	std::vector<double> return_value(6);
+	std::cout<<"lab_fk called"<<std::endl;
 	/*
 	std::vector<double> link_length();
 	std::vector<double> link_twist = {};

@@ -31,6 +31,33 @@ std::vector<int> object_labels, rows, cols;
 * Functions in class:
 * **************************************************/   
 
+int setOn(ur_msgs::SetIO srv, ros::ServiceClient srv_SetIO){
+    ROS_INFO("Setting On the digital output");
+    srv.request.fun = 1;
+    srv.request.pin = 0;  //Digital Output 0
+    srv.request.state = 1.0; //Set DO0 on
+    if (srv_SetIO.call(srv)) {
+            ROS_INFO("True: Switched Suction ON");
+    } else {
+            ROS_INFO("False");
+    }
+    return 0;
+}
+
+int setOff(ur_msgs::SetIO srv, ros::ServiceClient srv_SetIO){
+    ROS_INFO("Setting off the digital output");
+    srv.request.fun = 1;
+    srv.request.pin = 0;  //Digital Output 0
+    srv.request.state = 0.0; //Set DO0 on
+    if (srv_SetIO.call(srv)) {
+            ROS_INFO("True: Switched Suction OFF");
+    } else {
+            ROS_INFO("False");
+    }
+    return 0;
+}
+
+
 //constructor(don't modify) 
 ImageConverter::ImageConverter():it_(nh_)
 {
@@ -597,18 +624,27 @@ void onMouseAssociated(int event, int x, int y, int flags, void* userdata)
 
 }
 
+void move_arm(double x, double y, double z)
+{
+
+}
+
 void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
 {
     // For use with Lab 6
     // If the robot is holding a block, place it at the designated row and column. 
+    ur_msgs::SetIO srv;
+    ros::NodeHandle nh;
+    ros::ServiceClient srv_SetIO = nh.serviceClient<ur_msgs::SetIO>("ur_driver/set_io");
+
     ROS_INFO_STREAM("ImageConverter::onClick is called"); 
     if  ( event == EVENT_LBUTTONDOWN ) //if left click, do nothing other than printing the clicked point
     {  
         if (leftclickdone == 1) {
             leftclickdone = 0;  // code started
             ROS_INFO_STREAM("left click:  (" << x << ", " << y << ")");  //the point you clicked
-    		double x_world, y_world;
-    		double Tx, Ty;
+            double x_world, y_world;
+            double Tx, Ty;
 
             double s_theta = sin(theta_rad);
             double c_theta = cos(theta_rad);
@@ -622,23 +658,48 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
             y_c = (y - Or) / beta;
 
             x_w=1.0*(x_c+(s_theta/c_theta)*y_c-Tx-(s_theta/c_theta)*Ty)/(c_theta+s_theta*s_theta/c_theta);
-            y_w=-1.0*(x_c-(c_theta/s_theta)*y_c-Tx+(c_theta/s_theta)*Ty)/(s_theta+c_theta*c_theta/s_theta);
+            y_w=1.0*(x_c-(c_theta/s_theta)*y_c-Tx+(c_theta/s_theta)*Ty)/(s_theta+c_theta*c_theta/s_theta);
 
             cout<<"x_w = "<<x_w<<endl;
             cout<<"y_w = "<<y_w<<endl;
-            
-    		for(int i = 0; i < rows.size(); i++){
-    			if(x > (cols[i] - BODY_PIXEL_WIDTH) && x < (cols[i] + BODY_PIXEL_WIDTH) && y > (rows[i] - BODY_PIXEL_WIDTH) && y < (rows[i] + BODY_PIXEL_WIDTH) )
-   				{
-   					std::cout<<"reached here"<<std::endl;
-                    cout<<"x_w = "<<x_w<<endl;
-                    cout<<"y_w = "<<y_w<<endl;
 
-   					driver_msg.destination = lab_invk(y_w * 1000, x_w * 1000, 35, 0);
-   					pub_command.publish(driver_msg);
-   				}
-            }
+            y_w -= 1.5/100;
+            x_w += 1.5/100;
             
+            std::vector<double> temp;
+
+            for(int i = 0; i < rows.size(); i++){
+                if(x > (cols[i] - BODY_PIXEL_WIDTH) && x < (cols[i] + BODY_PIXEL_WIDTH) && y > (rows[i] - BODY_PIXEL_WIDTH) && y < (rows[i] + BODY_PIXEL_WIDTH) )
+                {
+                    std::cout<<"reached here"<<std::endl;
+
+                    driver_msg.destination = lab_invk(x_w * 1000, y_w * 1000, 35, 0);
+                    SuctionValue = 1.0;
+                    pub_command.publish(driver_msg);
+
+                    driver_msg.destination = lab_invk(x_w * 1000, y_w * 1000, 18, 0);
+                    SuctionValue = 1.0;
+                    pub_command.publish(driver_msg);
+
+                    ur_msgs::SetIO srv;
+                    ros::NodeHandle nh;
+                    ros::ServiceClient srv_SetIO = nh.serviceClient<ur_msgs::SetIO>("ur_driver/set_io");
+                    setOn(srv, srv_SetIO);
+
+                    driver_msg.destination = lab_invk(x_w * 1000, y_w * 1000, 35, 0);
+                    pub_command.publish(driver_msg);
+
+                    driver_msg.destination = lab_invk(130, 440, 35, 0);
+                    pub_command.publish(driver_msg);
+
+                    driver_msg.destination = lab_invk(130, 440, 18, 0);
+                    pub_command.publish(driver_msg);
+                    
+
+                    driver_msg.destination = lab_invk(130, 440, 35, 0);
+                    pub_command.publish(driver_msg);
+                }
+            }
             
             leftclickdone = 1; // code finished
         } else {
@@ -651,7 +712,8 @@ void ImageConverter::onClick(int event,int x, int y, int flags, void* userdata)
             rightclickdone = 0;  // starting code
             ROS_INFO_STREAM("right click:  (" << x << ", " << y << ")");  //the point you clicked
             for(int i = 0; i < object_labels.size(); i++){
-            	std::cout<<"object_labels="<<object_labels[i]<<std::endl;
+                setOff(srv, srv_SetIO);
+                std::cout<<"object_labels="<<object_labels[i]<<std::endl;
             }
             // put your right click code here
             rightclickdone = 1; // code finished

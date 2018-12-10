@@ -32,8 +32,6 @@ std::vector<double> lab_fk(float theta1, float theta2, float theta3, float theta
 	std::vector<double> link_offset = {152,120,-93,83,83,138};
 //Make sure to print text explaining all the parts of the Transformation Matrix
 	//===========Implement joint angle to encoder expressions here.====================
-	cout<<"Forward Kinematics calculated :"<<endl;
-  cout<<"Last column of T:"<<endl;
 // Uncomment these when you have enter the correct value in each Question mark.
     T = DH2HT(link_length[0],link_twist[0],link_offset[0],theta1)*
 			DH2HT(link_length[1],link_twist[1],link_offset[1],theta2)*
